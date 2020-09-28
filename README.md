@@ -1,0 +1,1 @@
+Projeto de chat com nodejs. Essa é uma base para início de um projeto com socket.io.
