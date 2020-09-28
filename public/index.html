@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+        integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+        crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"
+        integrity="sha512-v8ng/uGxkge3d1IJuEo6dJP8JViyvms0cly9pnbfRxT6/31c3dRWxIiwGnMSWwZjHKOuY3EVmijs7k1jz/9bLA=="
+        crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+
+    <div class="container mt-4">
+        <form id="chat">
+            <input type="text" name="username" id="username" class="form-control mt-2" placeholder="Digite o seu nome">
+            <div class="messages mt-2" id="messages"></div>
+            <input type="text" name="message" id="message" class="form-control mt-2"
+                placeholder="Digite a sua mensagem">
+            <button type="submit" class="btn btn-primary form-control mt-2">Enviar</button>
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        var socket = io('http://localhost:3000');
+
+        function renderMessage(message) {
+            $('.messages').append('<div><strong>' + message.author + ': </strong>' +
+                message.message + '</div>')
+        }
+
+        /*$("#fechar").on("click", () => {
+            event.preventDefault();
+            var author = $("input[name=username]").val();
+            var message = $("input[name=message]").val();
+
+            if (author.length && message.length) {
+                var messageObject = {
+                    author: "Sistema",
+                    message: "Chat encerrado!"
+                }
+            }
+
+            renderMessage(messageObject);
+
+            socket.emit('end');
+        });*/
+
+        /*socket.on("exitConfirm", (message) => {
+            renderMessage(message);
+        })*/
+
+        socket.on("previousMessages", (messages) => {
+            for (message of messages) {
+                renderMessage(message);
+            }
+        });
+
+        socket.on("receivedMessage", (message) => {
+            renderMessage(message);
+        });
+
+        $("#chat").submit((event) => {
+
+            event.preventDefault();
+            var author = $("input[name=username]").val();
+            var message = $("input[name=message]").val();
+
+            if (author.length && message.length) {
+                var messageObject = {
+                    author: author,
+                    message: message,
+                }
+            }
+
+            renderMessage(messageObject);
+
+            // Posiciona o scroll no final
+            var div = $('#messages');
+            div.prop("scrollTop", div.prop("scrollHeight"));
+
+            socket.emit('sendMessage', messageObject);
+
+        })
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous">
+    </script>
+
+</body>
+
+</html>
